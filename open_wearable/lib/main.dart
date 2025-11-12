@@ -12,6 +12,8 @@ import 'package:open_earable_flutter/open_earable_flutter.dart' as oe;
 
 import 'models/bluetooth_auto_connector.dart';
 import 'view_models/wearables_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 // 1) Global navigator key so we can open dialogs from anywhere
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -25,9 +27,13 @@ class CustomLogFilter extends LogFilter {
   }
 }
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   oe.logger = Logger(level: Level.trace, filter: CustomLogFilter());
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(
     MultiProvider(
@@ -68,7 +74,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Read provider without listening, allowed in initState with Provider
     final wearablesProvider = context.read<WearablesProvider>();
 
-    _unsupportedFirmwareSub = wearablesProvider.unsupportedFirmwareStream.listen((evt) {
+    _unsupportedFirmwareSub =
+        wearablesProvider.unsupportedFirmwareStream.listen((evt) {
       // No async/await here. No widget context usage either.
       final nav = rootNavigatorKey.currentState;
       if (nav == null || !mounted) return;
@@ -76,14 +83,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       // Push a dialog route via NavigatorState (no BuildContext from this widget)
       nav.push(
         DialogRoute<void>(
-          context: rootNavigatorKey.currentContext!, // from navigator, not this widget
+          context: rootNavigatorKey
+              .currentContext!, // from navigator, not this widget
           barrierDismissible: true,
           builder: (_) => PlatformAlertDialog(
             title: const Text('Firmware unsupported'),
             content: getUnsupportedAlertText(evt),
             actions: <Widget>[
               PlatformDialogAction(
-                cupertino: (_, __) => CupertinoDialogActionData(isDefaultAction: true),
+                cupertino: (_, __) =>
+                    CupertinoDialogActionData(isDefaultAction: true),
                 child: const Text('OK'),
                 // Close via navigator state; no widget context
                 onPressed: () => rootNavigatorKey.currentState?.pop(),
@@ -95,8 +104,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     });
 
     final WearableConnector connector = context.read<WearableConnector>();
-    
-    final SensorRecorderProvider sensorRecorderProvider = context.read<SensorRecorderProvider>();
+
+    final SensorRecorderProvider sensorRecorderProvider =
+        context.read<SensorRecorderProvider>();
     _autoConnector = BluetoothAutoConnector(
       navStateGetter: () => rootNavigatorKey.currentState,
       wearableManager: WearableManager(),
