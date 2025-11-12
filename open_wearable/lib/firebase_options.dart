@@ -46,6 +46,7 @@ class DefaultFirebaseOptions {
     }
   }
 
+  /// API keys here are for project identification, not authorization.
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyCt6H4kd7CEcbE5ikJuZzW27p6nhd7hLX8',
     appId: '1:246277448750:web:cfe7966b21abffeed3abbf',
@@ -72,5 +73,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'eargpt-b0987.firebasestorage.app',
     iosBundleId: 'edu.kit.teco.openWearable',
   );
-
 }
