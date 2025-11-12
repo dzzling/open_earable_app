@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _controller = PlatformTabController(initialIndex: 0);
+    _controller = PlatformTabController(initialIndex: 2);
     _tabs = [
       DevicesPage(),
       SensorPage(),
@@ -66,41 +66,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildLargeScreenLayout(BuildContext context) {
-    return PlatformScaffold(
-      appBar: PlatformAppBar(
-        title: PlatformText("OpenWearable"),
+    return PlatformTabScaffold(
+      tabController: _controller,
+      bodyBuilder: (context, index) => IndexedStack(
+        index: index,
+        children: _tabs,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: ListView(
-          children: [
-            PlatformText(
-              "Connected Devices",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge
-                  ?.copyWith(color: Theme.of(context).colorScheme.surfaceTint),
-            ),
-            DevicesPage(),
-            PlatformText(
-              "Sensor Configuration",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge
-                  ?.copyWith(color: Theme.of(context).colorScheme.surfaceTint),
-            ),
-            SensorConfigurationView(),
-            PlatformText(
-              "Sensor Values",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge
-                  ?.copyWith(color: Theme.of(context).colorScheme.surfaceTint),
-            ),
-            SensorValuesPage(),
-          ],
-        ),
-      ),
+      items: items(context),
     );
   }
 
